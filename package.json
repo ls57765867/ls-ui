@@ -1,0 +1,22 @@
+{
+  "name": "ls-ui",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm -C play dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.1.3",
+    "vue": "^3.3.4"
+  },
+  "dependencies": {
+    "@ls-ui/components": "workspace:*",
+    "@ls-ui/docs": "workspace:*",
+    "@ls-ui/utils": "workspace:*"
+  }
+}
