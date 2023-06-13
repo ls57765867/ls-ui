@@ -6,12 +6,14 @@ importers:
     specifiers:
       '@ls-ui/components': workspace:*
       '@ls-ui/docs': workspace:*
+      '@ls-ui/hooks': workspace:*
       '@ls-ui/utils': workspace:*
       typescript: ^5.1.3
       vue: ^3.3.4
     dependencies:
       '@ls-ui/components': link:packages/components
       '@ls-ui/docs': link:packages/docs
+      '@ls-ui/hooks': link:packages/hooks
       '@ls-ui/utils': link:packages/utils
     devDependencies:
       typescript: 5.1.3
@@ -21,6 +23,9 @@ importers:
     specifiers: {}
 
   packages/docs:
+    specifiers: {}
+
+  packages/hooks:
     specifiers: {}
 
   packages/utils:

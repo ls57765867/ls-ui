@@ -1,8 +1,9 @@
 <template>
- <div class="text-cyan-300"> test</div>
+  <div class="text-cyan-300"> test</div>
+  <ls-button></ls-button>
 </template>
 
-<script setup lang="ts">
+<script>
 
 </script>
 

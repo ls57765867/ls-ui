@@ -17,6 +17,7 @@
   "dependencies": {
     "@ls-ui/components": "workspace:*",
     "@ls-ui/docs": "workspace:*",
-    "@ls-ui/utils": "workspace:*"
+    "@ls-ui/utils": "workspace:*",
+    "@ls-ui/hooks": "workspace:*"
   }
 }

@@ -14,6 +14,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","/*.ts","/*.d.ts","auto-imports.d.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["packages/**/*.ts","src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","/*.ts","/*.d.ts","auto-imports.d.ts"],
 }
