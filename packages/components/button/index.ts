@@ -1,8 +1,4 @@
-import Button from "./src/button.vue";
-import {withInstall} from '@ls-ui/utils'
+import Button from './src/button.vue';
+import { withInstall } from '@ls-ui/utils';
 
-export const LsButton = withInstall(Button,{
- name:{
-     test:'test'
- }
-})
+export const ElButton = withInstall(Button, {});

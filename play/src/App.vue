@@ -1,10 +1,3 @@
 <template>
-  <div class="text-cyan-300"> test</div>
-  <ls-button></ls-button>
+  <router-view></router-view>
 </template>
-
-<script>
-
-</script>
-
-<style lang="scss" scoped></style>

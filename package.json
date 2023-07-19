@@ -18,6 +18,8 @@
     "@ls-ui/components": "workspace:*",
     "@ls-ui/docs": "workspace:*",
     "@ls-ui/utils": "workspace:*",
-    "@ls-ui/hooks": "workspace:*"
+    "@ls-ui/hooks": "workspace:*",
+    "@ls-ui/constants": "workspace:*",
+    "@element-plus/icons-vue": "^2.0.6"
   }
 }
