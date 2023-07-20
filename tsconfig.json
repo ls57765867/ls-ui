@@ -1,18 +1,10 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "removeComments": true,  // 删除注释
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "strict": true,
-    "jsx": "preserve", // 不让jsx转化
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
-    "skipLibCheck": true,
-    "noEmit": true
-  },
-  "include": ["packages/**/*.ts","src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","/*.ts","/*.d.ts","auto-imports.d.ts"],
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.web.json" },
+    { "path": "./tsconfig.play.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.vite-config.json" },
+    { "path": "./tsconfig.vitest.json" }
+  ]
 }
