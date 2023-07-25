@@ -10,7 +10,7 @@ import type { PopperContentProps } from '../content';
 const DEFAULT_ARROW_OFFSET = 0;
 
 export const usePopperContent = (props: PopperContentProps) => {
-  const { popperInstanceRef, contentRef, triggerRef, role } = inject(POPPER_INJECTION_KEY, undefined)!;
+  const { popperInstanceRef, contentRef, triggerRef, role } = inject(POPPER_INJECTION_KEY)!;
 
   const arrowRef = ref<HTMLElement>();
   const arrowOffset = ref<number>();
@@ -30,7 +30,7 @@ export const usePopperContent = (props: PopperContentProps) => {
     // Refer to https://popper.js.org/docs/v2/modifiers/arrow/
     return {
       name: 'arrow',
-      enabled: !isUndefined(arrowEl),
+      enabled: !!arrowEl,
       options: {
         element: arrowEl,
         padding: offset,

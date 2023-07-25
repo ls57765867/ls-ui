@@ -7,13 +7,13 @@ import type { Modifier } from '@popperjs/core';
 import type { Measurable } from './constants';
 import type { PopperCoreConfigProps } from './content';
 
-export const buildPopperOptions = (props: PopperCoreConfigProps, modifiers: Modifier<any, any>[] = []) => {
+export const buildPopperOptions = (props: PopperCoreConfigProps, modifiers: Modifier<string, any>[] = []) => {
   const { placement, strategy, popperOptions } = props;
   const options = {
-    placement,
-    strategy,
-    ...popperOptions,
-    modifiers: [...genModifiers(props), ...modifiers],
+    placement, // popper出现的位置
+    strategy, // 定位类型
+    ...popperOptions, //其他用户的自定义
+    modifiers: [...genModifiers(props), ...modifiers], // 合并modifiers中的箭头和监听函数
   };
 
   deriveExtraModifiers(options, popperOptions?.modifiers);
@@ -25,6 +25,7 @@ export const unwrapMeasurableEl = ($el: MaybeRef<Measurable | undefined | Compon
   return unrefElement($el as HTMLElement);
 };
 
+// 根据options生成modifiers
 function genModifiers(options: PopperCoreConfigProps) {
   const { offset, gpuAcceleration, fallbackPlacements } = options;
   return [

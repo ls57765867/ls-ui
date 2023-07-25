@@ -1,16 +1,16 @@
 import { computed, ref, unref } from 'vue';
-import { useNamespace } from '@ls-ui/hooks';
-
-import type { CSSProperties, StyleValue } from 'vue';
-import type { UsePopperContentReturn } from './use-content';
+import { useNamespace, useZIndex } from '@ls-ui/hooks';
 import type { PopperContentProps } from '../content';
 
-export const usePopperContentDOM = (props: PopperContentProps, { attributes, styles, role }: any) => {
-  const ns = useNamespace('popper');
+import type { CSSProperties, StyleValue } from 'vue';
 
+export const usePopperContentDOM = (props: PopperContentProps, { attributes, styles, role }: any) => {
+  const { nextZIndex } = useZIndex();
+  const ns = useNamespace('popper');
   const contentAttrs = computed(() => unref(attributes).popper);
-  const contentZIndex = ref<number>(props.zIndex || 1);
+  const contentZIndex = ref<number>(props.zIndex || nextZIndex());
   const contentClass = computed(() => [ns.b(), ns.is('pure', props.pure), ns.is(props.effect), props.popperClass]);
+
   const contentStyle = computed<StyleValue[]>(() => {
     return [
       { zIndex: unref(contentZIndex) } as CSSProperties,
@@ -18,11 +18,12 @@ export const usePopperContentDOM = (props: PopperContentProps, { attributes, sty
       props.popperStyle || {},
     ];
   });
+
   const ariaModal = computed<string | undefined>(() => (role.value === 'dialog' ? 'false' : undefined));
   const arrowStyle = computed(() => (unref(styles).arrow || {}) as CSSProperties);
 
   const updateZIndex = () => {
-    contentZIndex.value = props.zIndex || 1;
+    contentZIndex.value = props.zIndex || nextZIndex();
   };
 
   return {

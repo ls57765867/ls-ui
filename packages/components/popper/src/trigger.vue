@@ -1,25 +1,25 @@
 <template>
   <el-only-child v-if="!virtualTriggering" v-bind="$attrs">
-    <slot> </slot>
+    <slot></slot>
   </el-only-child>
 </template>
 
-<script lang="ts" setup>
-import { inject, onMounted, watch } from 'vue';
+<script setup lang="ts">
+import { ElOnlyChild } from '@ls-ui/components/slot';
 import { popperTriggerProps } from './trigger';
-import { POPPER_INJECTION_KEY } from './constants';
 import { unrefElement } from '@vueuse/core';
 import { isElement } from '@ls-ui/utils';
+import { POPPER_INJECTION_KEY } from './constants';
+import { inject, onMounted, watch } from 'vue';
 import { useForwardRef } from '@ls-ui/hooks';
-import { ElOnlyChild } from '@ls-ui/components/slot';
+
 defineOptions({
   name: 'ElPopperTrigger',
   inheritAttrs: false,
 });
-
 const props = defineProps(popperTriggerProps);
-const { triggerRef } = inject(POPPER_INJECTION_KEY, undefined)!;
 
+const { triggerRef } = inject(POPPER_INJECTION_KEY, undefined)!;
 useForwardRef(triggerRef);
 
 onMounted(() => {
@@ -43,11 +43,8 @@ onMounted(() => {
           ['onMouseenter', 'onMouseleave', 'onClick', 'onKeydown', 'onFocus', 'onBlur', 'onContextmenu'] as const
         ).forEach((eventName) => {
           const handler = props[eventName];
-
           if (handler) {
-            // @ts-ignore
             (el as HTMLElement).addEventListener(eventName.slice(2).toLowerCase(), handler);
-            // @ts-ignore
             (prevEl as HTMLElement)?.removeEventListener?.(eventName.slice(2).toLowerCase(), handler);
           }
         });
@@ -58,4 +55,13 @@ onMounted(() => {
     }
   );
 });
+
+defineExpose({
+  /**
+   * @description trigger element
+   */
+  triggerRef,
+});
 </script>
+
+<style scoped></style>

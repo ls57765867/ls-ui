@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import './style.css'
 import 'element-plus/theme-chalk/index.css'
-import element from 'element-plus'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 import router from './router'
@@ -10,9 +9,7 @@ import { ElIcon } from '@ls-ui/components/icon'
 import { ElPopper } from '@ls-ui/components/popper'
 const store = createPinia()
 const app = createApp(App)
-app.use(element)
 
-app.use(ElButton)
 app.use(ElIcon)
 app.use(ElPopper)
 app.use(router).use(store).mount('#app')

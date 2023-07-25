@@ -2,21 +2,22 @@
   <slot> </slot>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref, computed, provide } from 'vue';
 import { popperProps } from './popper';
-import { POPPER_INJECTION_KEY } from './constants';
-import type { Instance } from '@popperjs/core';
+import { PopperInstance } from './popper';
+import { ElPopperInjectionContext, POPPER_INJECTION_KEY } from './constants';
+
 defineOptions({
   name: 'ElPopper',
   inheritAttrs: false,
 });
 const props = defineProps(popperProps);
-const triggerRef = ref<HTMLElement>(); // 触发的ref
-const popperInstanceRef = ref<Instance>(); // popper的实例
-const contentRef = ref<HTMLElement>(); // 内容
-const referenceRef = ref<HTMLElement>(); // 参考的ref
-const role = computed(() => props.role); // 角色类型
+const triggerRef = ref<HTMLElement>();
+const popperInstanceRef = ref<PopperInstance>();
+const contentRef = ref<HTMLElement>();
+const referenceRef = ref<HTMLElement>();
+const role = computed(() => props.role);
 
 const popperProvides = {
   triggerRef,
@@ -24,9 +25,7 @@ const popperProvides = {
   contentRef,
   referenceRef,
   role,
-};
+} as ElPopperInjectionContext;
 defineExpose(popperProvides);
 provide(POPPER_INJECTION_KEY, popperProvides);
 </script>
-
-<style scoped></style>

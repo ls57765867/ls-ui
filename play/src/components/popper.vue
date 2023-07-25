@@ -1,46 +1,22 @@
 <template>
   <div>
     <el-popper>
-      <el-popper-trigger trigger="hover" virtual-triggering :virtual-ref="buttonRef">
-        <button style="position: fixed; left: 200px; top: 300px">123123123</button>
-      </el-popper-trigger>
-      <el-popper-content
-        placement="top-end"
-        :popper-options="{
-          modifiers: [
-            {
-              name: 'computeStyles',
-              options: {
-                adaptive: false,
-                enabled: false
-              }
-            }
-          ]
-        }"
-        v-if="visible"
-        >我他妈来了!!</el-popper-content
-      >
+      <el-popper-trigger virtual-triggering :virtual-ref="triggerRef"> </el-popper-trigger>
+      <el-popper-content v-if="visible" placement="left"
+        >来了老弟!!!
+        <el-popper-arrow></el-popper-arrow>
+      </el-popper-content>
     </el-popper>
-
-    <div>
-      <el-button v-for="i in 3" :key="i" @mouseover="e => (buttonRef = e.currentTarget)" @click="visible = !visible"
-        >Click to open tooltip</el-button
-      >
-    </div>
+    <button @click="visible = !visible">点击我后提示跟随鼠标移动</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 const visible = ref(false)
-const buttonRef = ref()
-const onFocus = () => {
-  visible.value = true
-}
 
 const triggerRef = ref({
   getBoundingClientRect() {
-    return position.value as DOMRect
+    return position.value
   }
 })
 
@@ -63,9 +39,9 @@ onMounted(() => {
   document.addEventListener('mousemove', mousemoveHandler)
 })
 
-setInterval(() => {
-  console.log(buttonRef.value)
-}, 1000)
+onUnmounted(() => {
+  document.removeEventListener('mousemove', mousemoveHandler)
+})
 </script>
 
 <style scoped></style>

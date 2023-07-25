@@ -4,7 +4,7 @@
     v-bind="contentAttrs"
     :style="contentStyle"
     :class="contentClass"
-    tabindex="2"
+    tabindex="-1"
     @mouseenter="(e) => $emit('mouseenter', e)"
     @mouseleave="(e) => $emit('mouseleave', e)">
     <slot></slot>
@@ -13,14 +13,13 @@
 
 <script setup lang="ts">
 import { popperContentEmits, popperContentProps } from './content';
-import { usePopperContent, usePopperContentDOM } from './compossables';
+import { usePopperContent, usePopperContentDOM } from './compossables/index';
 import { POPPER_CONTENT_INJECTION_KEY } from './constants';
-import { isElement } from '@ls-ui/utils';
-import { isNil } from 'lodash-unified';
-import { ref, provide, onMounted, watch, unref } from 'vue';
+import { ref, provide, watch, onMounted } from 'vue';
 defineOptions({
   name: 'ElPopperContent',
 });
+
 const emit = defineEmits(popperContentEmits);
 const props = defineProps(popperContentProps);
 
@@ -31,15 +30,26 @@ const { ariaModal, arrowStyle, contentAttrs, contentClass, contentStyle, updateZ
   attributes,
   role,
 });
+// @todo
 
+// const formItemContext = inject(formItemContextKey, undefined);
+// if (
+//   formItemContext &&
+//   (formItemContext.addInputId || formItemContext.removeInputId)
+// ) {
+//   // disallow auto-id from inside popper content
+//   provide(formItemContextKey, {
+//     ...formItemContext,
+//     addInputId: NOOP,
+//     removeInputId: NOOP,
+//   })
+// }
 const arrowOffset = ref<number>();
 provide(POPPER_CONTENT_INJECTION_KEY, {
   arrowStyle,
   arrowRef,
   arrowOffset,
 });
-
-let triggerTargetAriaStopWatch: WatchStopHandle | undefined = undefined;
 
 const updatePopper = (shouldUpdateZIndex = true) => {
   update();
@@ -51,35 +61,6 @@ const togglePopperAlive = () => {
 };
 
 onMounted(() => {
-  watch(
-    () => props.triggerTargetEl,
-    (triggerTargetEl, prevTriggerTargetEl) => {
-      triggerTargetAriaStopWatch?.();
-      triggerTargetAriaStopWatch = undefined;
-
-      const el = unref(triggerTargetEl || contentRef.value);
-      const prevEl = unref(prevTriggerTargetEl || contentRef.value);
-
-      if (isElement(el)) {
-        triggerTargetAriaStopWatch = watch(
-          [role, () => props.ariaLabel, ariaModal, () => props.id],
-          (watches) => {
-            ['role', 'aria-label', 'aria-modal', 'id'].forEach((key, idx) => {
-              isNil(watches[idx]) ? el.removeAttribute(key) : el.setAttribute(key, watches[idx]!);
-            });
-          },
-          { immediate: true }
-        );
-      }
-      if (prevEl !== el && isElement(prevEl)) {
-        ['role', 'aria-label', 'aria-modal', 'id'].forEach((key) => {
-          prevEl.removeAttribute(key);
-        });
-      }
-    },
-    { immediate: true }
-  );
-
   watch(() => props.visible, togglePopperAlive, { immediate: true });
 });
 

@@ -2,7 +2,17 @@ import { computed, unref, shallowRef, ref, watch, onBeforeUnmount } from 'vue';
 import { createPopper } from '@popperjs/core';
 import type { Instance, Modifier, Options, State, VirtualElement } from '@popperjs/core';
 import { fromPairs } from 'lodash-unified';
-export const usePopper = (referenceElementRef, popperElementRef, opts) => {
+import type { Ref } from 'vue';
+
+type ElementType = HTMLElement | undefined;
+type ReferenceElement = ElementType | VirtualElement;
+export type PartialOptions = Partial<Options>;
+
+export const usePopper = (
+  referenceElementRef: Ref<ReferenceElement>,
+  popperElementRef: Ref<ElementType>,
+  opts: Ref<PartialOptions> | PartialOptions = {} as PartialOptions
+) => {
   const stateUpdater = {
     name: 'updateState',
     enabled: true,
@@ -59,8 +69,6 @@ export const usePopper = (referenceElementRef, popperElementRef, opts) => {
   );
 
   watch([referenceElementRef, popperElementRef], ([referenceElement, popperElement]) => {
-    console.log(options, 444);
-
     destroy();
     if (!referenceElement || !popperElement) return;
 
