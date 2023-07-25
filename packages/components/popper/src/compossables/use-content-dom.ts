@@ -9,7 +9,7 @@ export const usePopperContentDOM = (props: PopperContentProps, { attributes, sty
   const ns = useNamespace('popper');
 
   const contentAttrs = computed(() => unref(attributes).popper);
-  const contentZIndex = ref<number>(props.zIndex || -1);
+  const contentZIndex = ref<number>(props.zIndex || 1);
   const contentClass = computed(() => [ns.b(), ns.is('pure', props.pure), ns.is(props.effect), props.popperClass]);
   const contentStyle = computed<StyleValue[]>(() => {
     return [
@@ -22,7 +22,7 @@ export const usePopperContentDOM = (props: PopperContentProps, { attributes, sty
   const arrowStyle = computed(() => (unref(styles).arrow || {}) as CSSProperties);
 
   const updateZIndex = () => {
-    contentZIndex.value = props.zIndex || -1;
+    contentZIndex.value = props.zIndex || 1;
   };
 
   return {

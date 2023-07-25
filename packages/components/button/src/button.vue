@@ -2,6 +2,8 @@
   <component
     :is="tag"
     ref="_ref"
+    v-bind="_props"
+    @click="handleClick"
     :class="[
       ns.b(),
       ns.m(type),
@@ -15,8 +17,7 @@
       ns.is('link', link),
       ns.is('has-bg', bg),
     ]"
-    :style="buttonStyle"
-  >
+    :style="buttonStyle">
     <template v-if="loading">
       <slot v-if="$slots.loading" name="loading" />
       <el-icon v-else :class="ns.is('loading')">
@@ -34,18 +35,34 @@
 </template>
 
 <script lang="ts" setup>
-  import { ElIcon } from '@ls-ui/components/icon';
-  import { useNamespace } from '@ls-ui/hooks';
-  import { buttonEmits, buttonProps } from './button';
+import { ElIcon } from '@ls-ui/components/icon';
+import { useNamespace } from '@ls-ui/hooks';
+import { useButton } from './use-button';
+import { buttonEmits, buttonProps } from './button';
 
-  defineOptions({
-    name: 'ElButton',
-  });
+defineOptions({
+  name: 'ElButton',
+});
 
-  const props = defineProps(buttonProps);
+const props = defineProps(buttonProps);
 
-  const emit = defineEmits(buttonEmits);
+const emit = defineEmits(buttonEmits);
 
-  const buttonStyle = {};
-  const ns = useNamespace('button');
+const buttonStyle = {};
+const ns = useNamespace('button');
+
+const { _ref, _size, _type, _disabled, _props, shouldAddSpace, handleClick } = useButton(props, emit);
+
+defineExpose({
+  /** @description button html element */
+  ref: _ref,
+  /** @description button size */
+  size: _size,
+  /** @description button type */
+  type: _type,
+  /** @description button disabled */
+  disabled: _disabled,
+  /** @description whether adding space */
+  shouldAddSpace,
+});
 </script>

@@ -4,7 +4,7 @@
     v-bind="contentAttrs"
     :style="contentStyle"
     :class="contentClass"
-    tabindex="-1"
+    tabindex="2"
     @mouseenter="(e) => $emit('mouseenter', e)"
     @mouseleave="(e) => $emit('mouseleave', e)">
     <slot></slot>
@@ -81,6 +81,26 @@ onMounted(() => {
   );
 
   watch(() => props.visible, togglePopperAlive, { immediate: true });
+});
+
+defineExpose({
+  /**
+   * @description popper content element
+   */
+  popperContentRef: contentRef,
+  /**
+   * @description popperjs instance
+   */
+  popperInstanceRef: instanceRef,
+  /**
+   * @description method for updating popper
+   */
+  updatePopper,
+
+  /**
+   * @description content style
+   */
+  contentStyle,
 });
 </script>
 

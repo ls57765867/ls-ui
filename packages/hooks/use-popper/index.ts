@@ -9,7 +9,6 @@ export const usePopper = (referenceElementRef, popperElementRef, opts) => {
     phase: 'write',
     fn: ({ state }) => {
       const derivedState = deriveState(state);
-      console.log(derivedState, state, 7788);
       Object.assign(states.value, derivedState);
     },
     requires: ['computeStyles'],
@@ -21,7 +20,7 @@ export const usePopper = (referenceElementRef, popperElementRef, opts) => {
       onFirstUpdate,
       placement: placement || 'bottom',
       strategy: strategy || 'absolute',
-      modifiers: [...(modifiers || []), stateUpdater, sb, { name: 'applyStyles', enabled: false }],
+      modifiers: [...(modifiers || []), stateUpdater, { name: 'applyStyles', enabled: false }],
     };
   });
   const instanceRef = shallowRef<Instance | undefined>();

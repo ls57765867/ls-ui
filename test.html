@@ -1,44 +1,115 @@
 <!DOCTYPE html>
-<title>Popper example</title>
-<style>
-  #tooltip {
-    height: 100px;
-    background-color: #333;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 13px;
-  }
-  #button {
-    margin: 600px 400px;
-  }
-  .area {
-    position: relative;
-    width: 400px;
-    height: 400px;
-    border: 1px solid gray;
-    overflow: auto;
-  }
-</style>
-<body>
-  <div class="area">
-    <button id="button" aria-describedby="tooltip">I'm a button</button>
-    <div id="tooltip" role="tooltip">I'm a tooltip</div>
-  </div>
-</body>
-<!--引入popperjs-->
-<script src="https://unpkg.com/@popperjs/core@^2.0.0"></script>
-<script>
-  const button = document.querySelector('#button');
-  const tooltip = document.querySelector('#tooltip');
+<html>
+  <head>
+    <title>Popper Tutorial</title>
+    <style>
+      #tooltip {
+        background: #333;
+        color: white;
+        font-weight: bold;
+        padding: 4px 8px;
+        font-size: 13px;
+        border-radius: 4px;
+        display: none;
+      }
 
-  /**
-   * 创建Popper,
-   * 第一个参数为Popper的基准DOM
-   * 第二个参数为Popper的弹出DOM
-   * 第三个参数为配置对象
-   */
-  Popper.createPopper(button, tooltip, {
-    placement: 'right',
-  });
-</script>
+      #tooltip[data-show] {
+        display: block;
+      }
+
+      #arrow,
+      #arrow::before {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: inherit;
+      }
+
+      #arrow {
+        visibility: hidden;
+      }
+
+      #arrow::before {
+        visibility: visible;
+        content: '';
+        transform: rotate(45deg);
+      }
+
+      #tooltip[data-popper-placement^='top'] > #arrow {
+        bottom: -4px;
+      }
+
+      #tooltip[data-popper-placement^='bottom'] > #arrow {
+        top: -4px;
+      }
+
+      #tooltip[data-popper-placement^='left'] > #arrow {
+        right: -4px;
+      }
+
+      #tooltip[data-popper-placement^='right'] > #arrow {
+        left: -4px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="button" aria-describedby="tooltip" style="margin-top: 200px; margin-left: 300px">My button</button>
+    <div id="tooltip" role="tooltip">
+      My tooltip
+      <div id="arrow" data-popper-arrow></div>
+    </div>
+
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script>
+      const button = document.querySelector('#button');
+      const tooltip = document.querySelector('#tooltip');
+
+      const popperInstance = Popper.createPopper(button, tooltip, {});
+
+      function show() {
+        // Make the tooltip visible
+        tooltip.setAttribute('data-show', '');
+
+        // Enable the event listeners
+        popperInstance.setOptions((options) => ({
+          ...options,
+          modifiers: [
+            {
+              name: 'updateState',
+              enabled: true,
+              phase: 'write',
+              fn: (options) => {
+                console.log(options);
+              },
+              requires: ['computeStyles'],
+            },
+          ],
+        }));
+
+        // Update its position
+        popperInstance.update();
+      }
+
+      function hide() {
+        // Hide the tooltip
+        tooltip.removeAttribute('data-show');
+
+        // Disable the event listeners
+        popperInstance.setOptions((options) => ({
+          ...options,
+          modifiers: [{ name: 'eventListeners', enabled: false }],
+        }));
+      }
+
+      let flag = false;
+      button.addEventListener('click', () => {
+        if (flag) {
+          hide();
+        } else {
+          show();
+        }
+        flag = !flag;
+      });
+    </script>
+  </body>
+</html>
