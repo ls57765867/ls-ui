@@ -7,9 +7,12 @@ import router from './router'
 import { ElButton } from '@ls-ui/components/button'
 import { ElIcon } from '@ls-ui/components/icon'
 import { ElPopper } from '@ls-ui/components/popper'
+import ElPToolTip from '@ls-ui/components/tooltip'
 const store = createPinia()
 const app = createApp(App)
 
+app.use(ElButton)
 app.use(ElIcon)
 app.use(ElPopper)
+app.use(ElPToolTip)
 app.use(router).use(store).mount('#app')

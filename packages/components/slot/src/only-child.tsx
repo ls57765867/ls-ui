@@ -11,7 +11,6 @@ export const OnlyChild = defineComponent({
     const forwardRefDirective = useForwardRefDirective(forwardRefInjection?.setForwardRef ?? NOOP);
     return () => {
       const defaultSlot = slots.default?.(attrs);
-      console.log(defaultSlot);
 
       if (defaultSlot && defaultSlot.length > 1) {
         console.warn(`${NAME},的节点只能唯一`);
@@ -22,10 +21,8 @@ export const OnlyChild = defineComponent({
         console.warn(`${NAME},未能找到有效节点`);
         return null;
       }
-      let ret = withDirectives(cloneVNode(firstLegitNode, attrs), [[forwardRefDirective]]);
-      console.log(ret);
 
-      return ret;
+      return withDirectives(cloneVNode(firstLegitNode, attrs), [[forwardRefDirective]]);
     };
   },
 });
@@ -61,3 +58,6 @@ function wrapTextContent(s: string | VNode) {
   const ns = useNamespace('only-child');
   return <span class={ns.e('content')}>{s}</span>;
 }
+export type OnlyChildExpose = {
+  forwardRef: Ref<HTMLElement>;
+};

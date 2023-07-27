@@ -1,0 +1,174 @@
+<template>
+  <teleport :disabled="!teleported" :to="appendTo">
+    <transition
+      :name="transitionClass"
+      @after-leave="onTransitionLeave"
+      @before-enter="onBeforeEnter"
+      @after-enter="onAfterShow"
+      @before-leave="onBeforeLeave">
+      <el-popper-content
+        v-if="shouldRender"
+        v-show="shouldShow"
+        :id="id"
+        ref="contentRef"
+        v-bind="$attrs"
+        :aria-label="ariaLabel"
+        :boundaries-padding="boundariesPadding"
+        :fallback-placements="fallbackPlacements"
+        :gpu-acceleration="gpuAcceleration"
+        :offset="offset"
+        :placement="placement"
+        :popper-options="popperOptions"
+        :strategy="strategy"
+        :effect="effect"
+        :enterable="enterable"
+        :pure="pure"
+        :popper-class="popperClass"
+        :popper-style="[popperStyle, contentStyle]"
+        :reference-el="referenceEl"
+        :trigger-target-el="triggerTargetEl"
+        :visible="shouldShow"
+        :z-index="zIndex"
+        @mouseenter="onContentEnter"
+        @mouseleave="onContentLeave"
+        @blur="onBlur"
+        @close="onClose">
+        <template v-if="!destroyed">
+          <slot />
+        </template>
+      </el-popper-content>
+    </transition>
+  </teleport>
+</template>
+
+<script lang="ts" setup>
+import { computed, inject, onBeforeUnmount, ref, unref, watch } from 'vue';
+import { onClickOutside } from '@vueuse/core';
+import { useNamespace, usePopperContainerId } from '@ls-ui/hooks';
+import { composeEventHandlers } from '@ls-ui/utils';
+import { ElPopperContent } from '@ls-ui/components/popper';
+import { TOOLTIP_INJECTION_KEY } from './constants';
+import { useTooltipContentProps } from './content';
+
+defineOptions({
+  name: 'ElTooltipContent',
+  inheritAttrs: false,
+});
+
+const props = defineProps(useTooltipContentProps);
+const { selector } = usePopperContainerId();
+const ns = useNamespace('tooltip');
+// TODO any is temporary, replace with `InstanceType<typeof ElPopperContent> | null` later
+const contentRef = ref<any>(null);
+const destroyed = ref(false);
+const { controlled, id, open, trigger, onClose, onOpen, onShow, onHide, onBeforeShow, onBeforeHide } = inject(
+  TOOLTIP_INJECTION_KEY,
+  undefined
+)!;
+
+const transitionClass = computed(() => {
+  return props.transition || `${ns.namespace.value}-fade-in-linear`;
+});
+
+const persistentRef = computed(() => {
+  return props.persistent;
+});
+// @todo 这个有用吗?
+onBeforeUnmount(() => {
+  destroyed.value = true;
+});
+const shouldRender = computed(() => {
+  return unref(persistentRef) ? true : unref(open);
+});
+
+const shouldShow = computed(() => {
+  return props.disabled ? false : unref(open);
+});
+
+const appendTo = computed(() => {
+  console.log(props.appendTo, 2);
+
+  return props.appendTo || selector.value;
+});
+
+const contentStyle = computed(() => (props.style ?? {}) as any);
+
+const onTransitionLeave = () => {
+  onHide();
+};
+
+const stopWhenControlled = () => {
+  if (unref(controlled)) return true;
+};
+
+const onContentEnter = composeEventHandlers(stopWhenControlled, () => {
+  if (props.enterable && unref(trigger) === 'hover') {
+    onOpen();
+  }
+});
+
+const onContentLeave = composeEventHandlers(stopWhenControlled, () => {
+  if (unref(trigger) === 'hover') {
+    onClose();
+  }
+});
+const onBeforeEnter = () => {
+  contentRef.value?.updatePopper?.();
+  onBeforeShow?.();
+};
+
+const onBeforeLeave = () => {
+  onBeforeHide?.();
+};
+
+// 关闭其他的popper
+const onAfterShow = () => {
+  onShow();
+  stopHandle = onClickOutside(
+    computed(() => {
+      return contentRef.value?.popperContentRef;
+    }),
+    () => {
+      if (unref(controlled)) return;
+      const $trigger = unref(trigger);
+      if ($trigger !== 'hover') {
+        onClose();
+      }
+    }
+  );
+};
+
+const onBlur = () => {
+  if (!props.virtualTriggering) {
+    onClose();
+  }
+};
+
+let stopHandle: ReturnType<typeof onClickOutside>;
+
+watch(
+  () => unref(open),
+  (val) => {
+    if (!val) {
+      stopHandle?.();
+    }
+  },
+  {
+    flush: 'post',
+  }
+);
+
+watch(
+  () => props.content,
+  () => {
+    contentRef.value?.updatePopper?.();
+  }
+);
+
+defineExpose({
+  /**
+   * @description el-popper-content component instance
+   */
+  contentRef,
+});
+</script>
