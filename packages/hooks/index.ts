@@ -7,3 +7,5 @@ export * from './use-timeout';
 export * from './use-model-toggle';
 export * from './use-popper-container';
 export * from './use-delayed-toggle';
+export * from './use-size';
+export * from './use-cursor';

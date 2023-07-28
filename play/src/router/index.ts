@@ -13,8 +13,6 @@ for (const path in modules) {
     path: '/' + path.split('/').at(-1)!.replace('.vue', ''),
     component: () => import(/* @vite-ignore */ path)
   })
-  console.log(routes)
-
   // 处理模块
 }
 
