@@ -4,9 +4,9 @@
       <div v-if="$slots.prepend" :class="nsInput.be('group', 'prepend')">
         <slot name="prepend" />
       </div>
-      <div :class="wrapperKls">
+      <div ref="wrapperRef" :class="wrapperKls">
         <span v-if="$slots.prefix || prefixIcon" :class="nsInput.e('prefix')">
-          <span :class="nsInput.e('prefix-inner')" @click="focus">
+          <span :class="nsInput.e('prefix-inner')">
             <slot name="prefix"></slot>
             <el-icon v-if="prefixIcon" :class="nsInput.e('icon')">
               <component :is="prefixIcon"></component>
@@ -15,6 +15,7 @@
         </span>
 
         <input
+          :id="inputId"
           ref="input"
           :class="nsInput.e('inner')"
           v-bind="rawAttrs"
@@ -38,7 +39,7 @@
           @change="handleChange"
           @keydown="handleKeydown" />
         <span v-if="suffixVisible" :class="nsInput.e('suffix')">
-          <span :class="nsInput.e('suffix-inner')" @click="focus">
+          <span :class="nsInput.e('suffix-inner')">
             <template v-if="!showClear || !showPwdVisible || !isWordLimitVisible">
               <slot name="suffix" />
               <el-icon v-if="suffixIcon" :class="nsInput.e('icon')">
@@ -65,12 +66,23 @@
               @click="handlePasswordVisible">
               <component :is="passwordIcon" />
             </el-icon>
+            <!-- 校验信息部分 -->
+            <el-icon
+              v-if="validateState && validateIcon && needStatusIcon"
+              :class="[
+                nsInput.e('icon'),
+                nsInput.e('validateIcon'),
+                nsInput.is('loading', validateState === 'validating'),
+              ]">
+              <component :is="validateIcon" />
+            </el-icon>
           </span>
         </span>
       </div>
     </template>
     <template v-else>
       <textarea
+        id="inputId"
         ref="textarea"
         v-bind="rawAttrs"
         :class="nsTextarea.e('inner')"
@@ -100,14 +112,15 @@
 
 <script lang="ts" setup>
 import { computed, useAttrs as useRawAttrs, ref, onMounted, nextTick, shallowRef, watch, toRef } from 'vue';
-import { useCursor, useNamespace } from '@ls-ui/hooks';
+import { useCursor, useNamespace, useFocusController } from '@ls-ui/hooks';
 import { inputEmits, inputProps } from './input';
 import { isNil } from 'lodash-unified';
 import { noop } from '@vueuse/core';
 import { CircleClose, Hide as IconHide, View as IconView } from '@element-plus/icons-vue';
 import { useResizeObserver } from '@vueuse/core';
-import { isObject } from '@ls-ui/utils';
+import { isObject, ValidateComponentsMap } from '@ls-ui/utils';
 import { calcTextareaHeight } from './utils';
+import { useFormDisabled, useFormSize, useFormItem, useFormItemInputId } from '../../form';
 
 import type { StyleValue } from 'vue';
 defineOptions({
@@ -119,8 +132,18 @@ const emit = defineEmits(inputEmits);
 const rawAttrs = useRawAttrs();
 const slots = defineSlots();
 
+const inputSize = useFormSize();
+const inputDisabled = useFormDisabled();
 const nsInput = useNamespace('input');
 const nsTextarea = useNamespace('textarea');
+
+const { form, formItem } = useFormItem();
+const { inputId } = useFormItemInputId(props, {
+  formItemContext: formItem,
+});
+const needStatusIcon = computed(() => form?.statusIcon ?? false);
+const validateState = computed(() => formItem?.validateState || '');
+const validateIcon = computed(() => validateState.value && ValidateComponentsMap[validateState.value]);
 
 const passwordVisible = ref(false);
 const passwordIcon = computed(() => (passwordVisible.value ? IconView : IconHide));
@@ -130,7 +153,7 @@ const showPwdVisible = computed(
     !props.disabled &&
     !props.readonly &&
     !!nativeInputValue.value &&
-    (!!nativeInputValue.value || focused.value)
+    (!!nativeInputValue.value || isFocused.value)
 );
 const handlePasswordVisible = () => {
   passwordVisible.value = !passwordVisible.value;
@@ -145,12 +168,11 @@ const showClear = computed(
     !props.disabled &&
     !props.readonly &&
     !!nativeInputValue.value &&
-    (focused.value || hovering.value)
+    (isFocused.value || hovering.value)
 );
-const focused = ref(false);
 const hovering = ref(false);
 const isComposing = ref(false);
-const wrapperKls = computed(() => [nsInput.e('wrapper'), nsInput.is('focus', focused.value)]);
+const wrapperKls = computed(() => [nsInput.e('wrapper'), nsInput.is('focus', isFocused.value)]);
 const input = shallowRef<HTMLInputElement>();
 const textarea = shallowRef<HTMLTextAreaElement>();
 const _ref = computed(() => input.value || textarea.value);
@@ -164,6 +186,14 @@ useResizeObserver(textarea, (entries) => {
     /** right: 100% - width + padding(15) + right(6) */
     right: `calc(100% - ${width + 15}px)`,
   };
+});
+
+const { wrapperRef, isFocused, handleFocus, handleBlur } = useFocusController(_ref, {
+  afterBlur() {
+    if (props.validateEvent) {
+      formItem?.validate?.('blur');
+    }
+  },
 });
 
 const textareaCalcStyle = shallowRef(props.inputStyle);
@@ -213,8 +243,8 @@ const createOnceInitResize = (resizeTextarea: () => void) => {
 const onceInitSizeTextarea = createOnceInitResize(resizeTextarea);
 const containerKls = computed(() => [
   props.type === 'textarea' ? nsTextarea.b() : nsInput.b(),
-  nsInput.m(props.size),
-  nsInput.is('disabled', props.disabled),
+  nsInput.m(inputSize.value),
+  nsInput.is('disabled', inputDisabled.value),
   nsInput.is('exceed', inputExceed.value),
   {
     [nsInput.b('group')]: slots.prepend || slots.append,
@@ -230,7 +260,13 @@ const containerKls = computed(() => [
 const containerStyle = computed<StyleValue>(() => [rawAttrs.style as StyleValue, props.inputStyle]);
 
 const suffixVisible = computed(
-  () => !!slots.suffix || !!props.suffixIcon || showClear.value || props.showPassword || isWordLimitVisible.value
+  () =>
+    !!slots.suffix ||
+    !!props.suffixIcon ||
+    showClear.value ||
+    props.showPassword ||
+    isWordLimitVisible.value ||
+    (!!validateState.value && needStatusIcon.value)
 );
 
 const textLength = computed(() => nativeInputValue.value.length);
@@ -254,6 +290,11 @@ watch(
   () => props.modelValue,
   () => {
     nextTick(() => resizeTextarea());
+    if (props.validateEvent) {
+      formItem?.validate?.('change').catch((err) => {
+        console.log(err);
+      });
+    }
   }
 );
 watch(
@@ -278,15 +319,6 @@ const clear = () => {
   emit('change', '');
   emit('clear');
   emit('input', '');
-};
-
-const handleFocus = (event: FocusEvent) => {
-  focused.value = true;
-  emit('focus', event);
-};
-const handleBlur = (event: FocusEvent) => {
-  focused.value = false;
-  emit('blur', event);
 };
 
 const handleInput = async (event: Event) => {

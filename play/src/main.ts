@@ -9,6 +9,8 @@ import { ElIcon } from '@ls-ui/components/icon'
 import { ElPopper } from '@ls-ui/components/popper'
 import ElInput from '@ls-ui/components/input'
 import ElPToolTip from '@ls-ui/components/tooltip'
+import ElCheckbox from '@ls-ui/components/checkbox'
+import ElForm from '@ls-ui/components/form'
 const store = createPinia()
 const app = createApp(App)
 
@@ -17,4 +19,6 @@ app.use(ElIcon)
 app.use(ElPopper)
 app.use(ElPToolTip)
 app.use(ElInput)
+app.use(ElCheckbox)
+app.use(ElForm)
 app.use(router).use(store).mount('#app')
